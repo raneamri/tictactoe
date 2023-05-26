@@ -1,18 +1,19 @@
 {
   "configurations": [
-    {
-      "name": "windows-gcc-x86",
-      "includePath": [
-        "${workspaceFolder}/**"
-      ],
-      "compilerPath": "C:/MinGW/bin/gcc.exe",
-      "cStandard": "${default}",
-      "cppStandard": "${default}",
-      "intelliSenseMode": "windows-gcc-x86",
-      "compilerArgs": [
-        ""
-      ]
-    }
+      {
+          "name": "Mac",
+          "includePath": [
+              "${workspaceFolder}/**"
+          ],
+          "defines": [],
+          "macFrameworkPath": [
+              "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/System/Library/Frameworks"
+          ],
+          "compilerPath": "/usr/bin/g++",
+          "cStandard": "c17",
+          "cppStandard": "c++17",
+          "intelliSenseMode": "clang-x64"
+      }
   ],
   "version": 4
 }
