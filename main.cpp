@@ -86,7 +86,7 @@ int gridChecks(int grid[GLEN][GWID]) {
     }
     for(int i = 0; i < 3; i++) //checks vertical wins
     {
-        if(grid[0][i] == grid[0][i] && grid[0][i] == grid[2][i])
+        if(grid[0][i] == grid[1][i] && grid[0][i] == grid[2][i])
         return grid[0][i];
     }
 
