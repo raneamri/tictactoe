@@ -3,6 +3,7 @@
 #include <SDL2/SDL_image.h>
 
 #include "RenderWindow.hpp"
+#include "Entity.hpp"
 
 class RenderWindow
 {
@@ -11,9 +12,14 @@ class RenderWindow
         SDL_Texture* loadTexture(const char* p_filePath);
         void cleanUp(); 
         void clear();
-        void render(SDL_Texture* p_tex);
+        void render(Entity& p_entity);
         void display();
+        void updateMouseCords();
+        int getMouseX();
+        int getMouseY();
     private:
         SDL_Window* window;
         SDL_Renderer* renderer;
+        int mouseX;
+        int mouseY;
 };

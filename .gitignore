@@ -56,3 +56,5 @@ main
 .vscode
 .DS_Store
 .dist
+sdl2-config
+.gitignore
