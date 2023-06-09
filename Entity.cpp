@@ -3,13 +3,15 @@
 
 #include "Entity.hpp"
 
-Entity::Entity(int size_w, int size_h, float p_x, float p_y, SDL_Texture* tex) 
-:x(p_x), y(p_y), tex(tex) //sets the values of x y and tex to the ones being passed into the function
+void Entity::createEnt(int size_w, int size_h, float p_x, float p_y, SDL_Texture* p_tex) 
 {
+    x = p_x;
+    y = p_y;
     currentFrame.x = 0;
     currentFrame.y = 0;
     currentFrame.w = size_w;
     currentFrame.h = size_h;
+    tex = p_tex;
 }
 
 float Entity::getX()
@@ -33,7 +35,7 @@ Entity::~Entity()
 
 }
 
-Button::Button(int p_x1, int p_y1, int p_width, int p_height)
+void Button::createBtn(int p_x1, int p_y1, int p_width, int p_height)
 {
     buttonHitbox.x1 = p_x1;
     buttonHitbox.y1 = p_y1;

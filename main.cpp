@@ -1,4 +1,5 @@
 //g++ -IC:/Users/new/OneDrive/Desktop/projects/libs/SDLinclude -LC:/Users/new/OneDrive/Desktop/projects/libs/SDLlibs -o main main.cpp RenderWindow.cpp Entity.cpp -lmingw32 -lSDL2main -lSDL2 -lSDL2_image
+//g++ -IC:/projects/libs/SDLinclude -LC:/projects/libs/SDLlibs -o main main.cpp RenderWindow.cpp Entity.cpp -lmingw32 -lSDL2main -lSDL2 -lSDL2_image
 
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
@@ -30,31 +31,42 @@ int main(int argc, char **argv)
     SDL_Texture* XTex = window.loadTexture("gfx/X.png");
     SDL_Texture* startButtonTex = window.loadTexture("gfx/start.png"); //loading the textures
 
-    Entity boardEnt(512, 512, 0, 0, boardTex);
-    Entity startButtonEnt(128, 64, 100 ,100 , startButtonTex);
-    Entity platform0(32, 32, 100, 100, OTex);//setting the textures as entities
+    Entity boardEnt, startBtnEnt;
 
-    Button TLBtn(0, 0, 170, 170);
-    Button MLBtn(0, 170, 170, 170);
-    Button BLBtn(0, 340, 170, 170);
+    boardEnt.createEnt(512, 512, 0, 0, boardTex);
+    startBtnEnt.createEnt(128, 64, 100 ,100 , startButtonTex); //setting the textures as entities
+
     
-    Button TMBtn(170, 0, 170, 170);
-    Button MMBtn(170, 170, 170, 170);
-    Button BMBtn(170, 340, 170, 170);
+    Button startButtonBtn;
+    startButtonBtn.createBtn(100, 100, 128, 64); 
 
-    Button TRBtn(340, 0, 170, 170);
-    Button MRBtn(340, 170, 170, 170);
-    Button BRBtn(340, 340, 170, 170);
-    Button startButtonBtn(100, 100, 128, 64); //initalising all the buttons
+    Button gameBoardBtns[GLEN][GWID];
+    // Create and initialize the game board buttons using a loop
+    for (int i = 0; i < GLEN; i++) {
+        for (int j = 0; j < GWID; j++) {
+            int x1 = j * 170;
+            int y1 = i * 170;
+            gameBoardBtns[i][j].createBtn(x1, y1, 170, 170);
+        }
+    }
 
-    int board[GLEN][GWID] = {{-1, -1, -1},
-                             {-1, -1, -1},
-                             {-1, -1, -1}};
+
+    int gameBoard[GLEN][GWID] = {{-1, -1, -1},
+                                {-1, -1, -1},
+                                {-1, -1, -1}};
+    
+    Entity XOents[GLEN][GWID]; //initalising 2d array of entities which will help with rendering later on
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
+            XOents[i][j].createEnt(170, 170, (170 * j), (170 * i), nullptr);
+        }
+    }
 
     bool gameRunning = true;
     SDL_Event event;
     int state = 0;
-    int match = 0;
+    int match = 0,turn = 1;
+    
     
     while(gameRunning)
     {
@@ -74,10 +86,25 @@ int main(int argc, char **argv)
                 }
                 else if (state == 1)
                 {
-                    if (TLBtn.hitboxCheck(window.getMouseX(),window.getMouseY()))
+                    for(int i = 0; i < 3; i++)
                     {
-                        Entity Xent(32, 32, 0, 0, XTex);
-                        match = 1;
+                        for(int j = 0; j < 3; j++)
+                        {
+                            if (turn == 1 && gameBoardBtns[i][j].hitboxCheck(window.getMouseX(), window.getMouseY()) && gameBoard[i][j] == -1)// if it's player 1's turn and the mouse is in the hitbox
+                            {
+                                XOents[i][j].createEnt(170, 170, (170 * j), (170 * i), XTex);
+                                gameBoard[i][j] = 0;
+                                turn = 2; // Switch turn to player 2
+                            }
+
+                            else if (turn == 2 && gameBoardBtns[i][j].hitboxCheck(window.getMouseX(), window.getMouseY())&& gameBoard[i][j] == -1)// if it's player 2's turn and the mouse is in the hitbox
+                            {
+                                XOents[i][j].createEnt(170, 170, (170 * j), (170 * i), OTex);
+                                gameBoard[i][j] = 1;
+                                turn = 1; // Switch turn to player 1
+                                            
+                            }
+                        }   
                     }
                 }
 
@@ -88,16 +115,20 @@ int main(int argc, char **argv)
         {
             case 0: //main menu
                 window.clear();
-                window.render(startButtonEnt);
+                window.render(startBtnEnt);
                 window.display();
                 break;
 
             case 1: //game
                 window.clear();
                 window.render(boardEnt);
-                if(match){
-                Entity Xent(32, 32, 0, 0, XTex);
-                window.render(Xent);
+
+                for(int i = 0; i < 3; i++)
+                {
+                    for(int j = 0; j < 3; j++)
+                    {
+                        window.render(XOents[i][j]);
+                    }
                 }
 
                 window.display();
