@@ -13,6 +13,7 @@ class RenderWindow
         void cleanUp(); 
         void clear();
         void render(Entity& p_entity);
+        void renderRotate(Entity p_entity, SDL_Rect &destRect, float rotAngle);
         void display();
         void updateMouseCords();
         int getMouseX();

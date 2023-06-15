@@ -18,10 +18,13 @@ public:
     size_h is the source height
     p_x and p_y are the x and y coordiantes you want the texture to be diplayed at
     */
+   
+
     float getX();
     float getY();
     SDL_Texture* getTex();
     SDL_Rect getCurrentFrame();
+
     ~Entity();
 
 private:

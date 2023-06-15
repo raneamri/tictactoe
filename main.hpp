@@ -1,4 +1,5 @@
 #include <iostream>
+#include <utility>
 
 #include "defs.hpp"
 
@@ -16,7 +17,7 @@ Returns -1 if the game should continue.
 Returns 0 if player 1 wins.
 Returns 1 if player 2 wins.
 */
-int gridChecks(int grid[GLEN][GWID]);
+pair <int, int> gridChecks(int grid[GLEN][GWID]);
 
 /*
 Function to check the validity of an input
