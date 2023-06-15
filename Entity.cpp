@@ -58,6 +58,14 @@ bool Button::hitboxCheck(int mousePosX, int mousePosY)
     return false;
 }
 
+void Button::btnDel()
+{
+    buttonHitbox.x1 = -1;
+    buttonHitbox.y1 = -1;
+    buttonHitbox.x2 = -1;
+    buttonHitbox.y2 = -1;
+}
+
 Button::~Button()
 {
 

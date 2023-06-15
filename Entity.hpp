@@ -36,19 +36,23 @@ private:
 class Button
 {
 public:
-    void createBtn(int p_x1, int p_y1, int p_width, int p_height);
     /*
     Initislaises the hitbox of the button
     takes the top left coordinate and calculates the bottom right coordinate
     */
-    hitbox getHitbox();
+    void createBtn(int p_x1, int p_y1, int p_width, int p_height);
     /*
     returns the hitbox struct
     */
-    bool hitboxCheck(int x, int y);
+    hitbox getHitbox();
     /*
     function that checks if the mouse is in the hitbox
     */
+    bool hitboxCheck(int x, int y);
+    /*
+    nullifies the button, essentially deleting
+    */
+    void btnDel();
 
     ~Button();    
 private:

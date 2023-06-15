@@ -60,6 +60,20 @@ int main(int argc, char **argv)
         }
     }
 
+    SDL_Surface* cursorSurface = IMG_Load("gfx/cursor.png");
+    SDL_Surface* cursorHoverSurface = IMG_Load("gfx/cursorHover.png");
+    SDL_Surface* convertedCursorSurface = SDL_ConvertSurfaceFormat(cursorSurface, SDL_PIXELFORMAT_RGBA32, 0);
+    SDL_Surface* convertedCursorHoverSurface = SDL_ConvertSurfaceFormat(cursorHoverSurface, SDL_PIXELFORMAT_RGBA32, 0);
+    SDL_FreeSurface(cursorSurface);
+    SDL_FreeSurface(cursorHoverSurface);
+
+    SDL_Cursor* cursor = SDL_CreateColorCursor(convertedCursorSurface, 0, 0);
+    SDL_Cursor* cursorHover = SDL_CreateColorCursor(convertedCursorHoverSurface, 0, 0);
+    SDL_FreeSurface(convertedCursorSurface);
+    SDL_FreeSurface(convertedCursorHoverSurface);
+
+    SDL_ShowCursor(SDL_ENABLE);
+
     bool gameRunning = true;
     SDL_Event event;
     /*
@@ -85,6 +99,12 @@ int main(int argc, char **argv)
     while(gameRunning)
     {
         window.updateMouseCords();
+        
+        if(checkButtonHover(gameBoardBtns, window.getMouseX(), window.getMouseY()) && state == 1 || startButtonBtn.hitboxCheck(window.getMouseX(), window.getMouseY()) && state == 0)
+        SDL_SetCursor(cursorHover);
+        else
+        SDL_SetCursor(cursor);
+
 
         while (SDL_PollEvent(&event))
         {
@@ -115,6 +135,9 @@ int main(int argc, char **argv)
                             {
                                 XOents[i][j].createEnt(170, 170, (170 * j), (170 * i), nullptr);//reseting entities
                                 gameBoard[i][j] = -1; // reseting gameboard
+                                int x1 = j * 170;
+                                int y1 = i * 170;
+                                gameBoardBtns[i][j].createBtn(x1, y1, 170, 170); //resets button
                             }
                         }
 
@@ -129,6 +152,7 @@ int main(int argc, char **argv)
                             if (turn == 1 && gameBoardBtns[i][j].hitboxCheck(window.getMouseX(), window.getMouseY()) && gameBoard[i][j] == -1)// if it's player 1's turn and the mouse is in the hitbox
                             {
                                 XOents[i][j].createEnt(170, 170, (170 * j), (170 * i), XTex);
+                                gameBoardBtns[i][j].btnDel();
                                 gameBoard[i][j] = 0;
                                 numOfTurns++;
                                 turn = 2; // Switch turn to player 2
@@ -244,4 +268,14 @@ pair <int, int> gridChecks(int grid[GLEN][GWID])
         return { grid[0][2], 5 };
 
     return { -1, -1 }; // Return a pair of -1 values if no win condition is met
+}
+
+int checkButtonHover(Button buttons[GLEN][GWID], int cursorX, int cursorY) {
+    for (int i = 0; i < GLEN; i++) {
+        for (int j = 0; j < GWID; j++) {
+            if (buttons[i][j].hitboxCheck(cursorX, cursorY))
+            return 1;
+        }
+    }
+    return 0; // No button is being hovered
 }
