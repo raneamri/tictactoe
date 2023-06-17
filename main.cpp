@@ -6,34 +6,31 @@
 #include <iostream>
 
 #include "main.hpp"
+#include "globals.hpp"
 #include "defs.hpp"
 #include "types.hpp"
 
 using namespace std;
 
+RenderWindow window("GAME v0.1", WINDOW_WIDTH, WINDOW_HEIGHT);
 
 int main(int argc, char *argv[]) {
 
-    if(SDL_Init(SDL_INIT_VIDEO > 0))
-        cout << "SDL_Init HAS FAILED, SDL_ERROR: "<< SDL_GetError() << endl;
-    
-
-    if(!IMG_Init(IMG_INIT_PNG))
-        cout << "IMG_Init has failed. Error" << SDL_GetError()<< endl;
-
-    RenderWindow window("GAME v0.1", WINDOW_WIDTH, WINDOW_HEIGHT);
-
+    if(SDL_Init(SDL_INIT_VIDEO > 0) || !IMG_Init(IMG_INIT_PNG)) {
+        cerr << "Fatal error: SDL fail." << endl;
+    }
 
     SDL_Texture *boardTex = window.loadTexture("gfx/board.png");
     SDL_Texture *OTex = window.loadTexture("gfx/O.png");
     SDL_Texture *XTex = window.loadTexture("gfx/X.png");
-    SDL_Texture *startButtonTex = window.loadTexture("gfx/start.png");
     SDL_Texture *lineTex = window.loadTexture("gfx/line.png");
     SDL_Texture *player1WinTex = window.loadTexture("gfx/player1win.png"); 
     SDL_Texture *player2WinTex = window.loadTexture("gfx/player2win.png");
     SDL_Texture *tieTex = window.loadTexture("gfx/tie.png");
 
     Entity boardEnt, startBtnEnt, lineEnt, endScreenEnt;
+
+    Entity line ()
 
     Entity XOents[GLEN][GWID]; //initalising 2d array of entities which will help with rendering later on
 
@@ -42,13 +39,6 @@ int main(int argc, char *argv[]) {
             XOents[i][j].createEnt(170, 170, (170 * j), (170 * i), nullptr);
         }
     }
-
-    boardEnt.createEnt(512, 512, 0, 0, boardTex);
-    startBtnEnt.createEnt(128, 64, 192 , 128 , startButtonTex); //setting the textures as entities
-
-    
-    Button startButtonBtn;
-    startButtonBtn.createBtn(192, 128, 128, 64); 
 
     Button gameBoardBtns[GLEN][GWID];
     // Create and initialize the game board buttons using a loop
@@ -60,21 +50,6 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    SDL_Surface *cursorSurface = IMG_Load("gfx/cursor.png");
-    SDL_Surface *cursorHoverSurface = IMG_Load("gfx/cursorHover.png");
-    SDL_Surface *convertedCursorSurface = SDL_ConvertSurfaceFormat(cursorSurface, SDL_PIXELFORMAT_RGBA32, 0);
-    SDL_Surface *convertedCursorHoverSurface = SDL_ConvertSurfaceFormat(cursorHoverSurface, SDL_PIXELFORMAT_RGBA32, 0);
-    SDL_FreeSurface(cursorSurface);
-    SDL_FreeSurface(cursorHoverSurface);
-
-    SDL_Cursor *cursor = SDL_CreateColorCursor(convertedCursorSurface, 0, 0);
-    SDL_Cursor *cursorHover = SDL_CreateColorCursor(convertedCursorHoverSurface, 0, 0);
-    SDL_FreeSurface(convertedCursorSurface);
-    SDL_FreeSurface(convertedCursorHoverSurface);
-
-    SDL_ShowCursor(SDL_ENABLE); //cursor settings
-
-
     bool gameRunning = true;
     SDL_Event event;
     /*
@@ -83,7 +58,7 @@ int main(int argc, char *argv[]) {
     numOfTurns is to track the number of turns
     playerWon is used to store the player who won either 1 or 2
     */
-    int state = 0, turn = 1, numOfTurns = 0, playerWon = -1;
+    state_t state = MENU, laststate;
 
     /*
     tracks win info
@@ -94,27 +69,39 @@ int main(int argc, char *argv[]) {
     2d array to track the moves of the two players
     */
     int gameBoard[GLEN][GWID] = {{-1, -1, -1},
-                                {-1, -1, -1},
-                                {-1, -1, -1}};
+                                 {-1, -1, -1},
+                                 {-1, -1, -1}};
     
+
+
+    /*
+    State machine for game state
+    */
+    switch (state) {
+        case MENU:
+            state = MenuState();
+
+            laststate = MENU;
+            break;
+        case OFFLINE:
+            state = OfflineState();
+            laststate = OFFLINE;
+        case QUIT:
+            exit(1);
+    }
+
+
+
     while(gameRunning) {
-        window.updateMouseCords();
-        
-        if(checkButtonHover(gameBoardBtns, window.getMouseX(), window.getMouseY()) && state == 1 || startButtonBtn.hitboxCheck(window.getMouseX(), window.getMouseY()) && state == 0)
-        SDL_SetCursor(cursorHover);
-        else
-        SDL_SetCursor(cursor);
-
-
         while (SDL_PollEvent(&event)) {
             gameRunning = (event.type == SDL_QUIT) ? false : true;
 
             if (event.type == SDL_MOUSEBUTTONDOWN) {
-                if (state == 0 && startButtonBtn.hitboxCheck(window.getMouseX(), window.getMouseY())) {
-                    state = 1; 
-                } else if (state == 1) {
+                if (state == MENU && startButtonBtn.hitboxCheck(window.getMouseX(), window.getMouseY())) {
+                    state = OFFLINE; 
+                } else if (state == OFFLINE) {
                     if(numOfTurns == 9 || playerWon != -1) {   
-                        state = 0;//going back to main menu
+                        state = MENU;
                         numOfTurns = 0;
                         turn = 1;
                         playerWon = -1;
@@ -170,13 +157,13 @@ int main(int argc, char *argv[]) {
 
         switch (state)
         {
-            case 0: //main menu
+            case MENU: //main menu
                 window.clear();
                 window.render(startBtnEnt);
                 window.display();
                 break;
 
-            case 1: //game
+            case OFFLINE: //game
                 window.clear();
                 window.render(boardEnt);
                 
@@ -228,7 +215,8 @@ int main(int argc, char *argv[]) {
                 break; 
 
             default:
-                state = 0;
+                state = MENU;
+                cerr << "Error: untracked state" << endl;
                 break;
         }
     }
@@ -270,4 +258,101 @@ int checkButtonHover(Button buttons[GLEN][GWID], int cursorX, int cursorY) {
         }
     }
     return 0; // No button is being hovered
+}
+
+
+state_t MenuState() {
+    SDL_Event event;
+
+    Button startBtn(128, 64, 192 , 128 , "gfx/start.png");
+
+    while (true) {
+    while (SDL_PollEvent(&event)) {
+        SDL_GetMouseState(&mouseX, &mouseY);
+        /*
+        Check if they're hovering button
+        */
+        if (startBtn.hitboxCheck(mouseX, mouseY)) {
+            SDL_SetCursor(cursor.cursorHover);
+            /*
+            If they click while hovering, go to OFFLINE
+            */
+            if (event.type == SDL_MOUSEBUTTONDOWN) {
+                return OFFLINE;
+            }
+        } else {
+            SDL_SetCursor(cursor.cursor);
+        }
+
+        SDL_RenderClear(renderer); 
+        startBtn.renderButton();
+        /*
+        Display
+        */
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
+        SDL_RenderPresent(renderer);
+    }
+    }
+}
+
+
+state_t OfflineState() {
+    SDL_Event event;
+
+    Entity board(512, 512, 0, 0, "gfx/board.png");
+    int turn = 1, turnNum = 0, playerWon = -1;
+
+    while (true) {
+    while (SDL_PollEvent(&event)) {
+        if (turnNum * playerWon > -1) {
+            return MENU;
+        }
+
+        SDL_GetMouseState(&mouseX, &mouseY);
+
+        for(int i = 0; i < 3; i++) {
+            for(int j = 0; j < 3; j++) {
+                if (turn == 1 && gameBoardBtns[i][j].hitboxCheck(mouseX, mouseY) && board[i][j] == -1) {
+                    XOents[i][j].createEnt(170, 170, (170 * j), (170 * i), XTex);
+                    gameBoardBtns[i][j].btnDel();
+                    gameBoard[i][j] = 0;
+                    numOfTurns++;
+                    turn = 2; // Switch turn to player 2
+
+                    winInfo = gridChecks(gameBoard);
+
+                    if(winInfo.first != -1)
+                    playerWon = (winInfo.first == 0) ? 1 : 2;
+
+                }
+
+                else if (turn == 2 && gameBoardBtns[i][j].hitboxCheck(window.getMouseX(), window.getMouseY())&& gameBoard[i][j] == -1) {
+                    XOents[i][j].createEnt(170, 170, (170 * j), (170 * i), OTex);
+                    gameBoardBtns[i][j].btnDel();
+                    gameBoard[i][j] = 1;
+                    numOfTurns++;
+                    turn = 1; // Switch turn to player 1
+
+                    winInfo = gridChecks(gameBoard);
+
+                    if(winInfo.first != -1)
+                    playerWon = (winInfo.first == 0) ? 1 : 2;
+                                
+                }
+            }   
+        }
+
+
+
+
+        SDL_RenderClear(renderer); 
+        startBtn.renderButton();
+        /*
+        Display
+        */
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
+        SDL_RenderPresent(renderer);
+    }
+    }
+
 }

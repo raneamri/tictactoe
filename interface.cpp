@@ -2,6 +2,7 @@
 #include <SDL2/SDL_image.h>
 #include <iostream>
 
+#include "globals.hpp"
 #include "types.hpp"
 
 RenderWindow::RenderWindow(const char* p_title, int p_w, int p_h) : window(NULL), renderer(NULL) {
@@ -47,23 +48,6 @@ int RenderWindow::getMouseY() {
     return mouseY;
 }
 
-
-
-void RenderWindow::render(Entity &p_entity) {
-    SDL_Rect src;
-    src.x=p_entity.getCurrentFrame().x;
-    src.y=p_entity.getCurrentFrame().y;
-    src.w=p_entity.getCurrentFrame().w;
-    src.h=p_entity.getCurrentFrame().h;
-
-    SDL_Rect dst;
-    dst.x=p_entity.getX();
-    dst.y=p_entity.getY();
-    dst.w=p_entity.getCurrentFrame().w;
-    dst.h=p_entity.getCurrentFrame().h;
-    SDL_RenderCopy(renderer, p_entity.getTex(), &src, &dst);
-}
-
 void RenderWindow::renderRotate(Entity p_entity, SDL_Rect &destRect, float rotAngle) {
     SDL_Rect src;
     src.x=p_entity.getCurrentFrame().x;
@@ -77,17 +61,6 @@ void RenderWindow::renderRotate(Entity p_entity, SDL_Rect &destRect, float rotAn
 void RenderWindow::display() {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
     SDL_RenderPresent(renderer);
-}
-
-void Entity::createEnt(int size_w, int size_h, float p_x, float p_y, SDL_Texture* p_tex) 
-{
-    x = p_x;
-    y = p_y;
-    currentFrame.x = 0;
-    currentFrame.y = 0;
-    currentFrame.w = size_w;
-    currentFrame.h = size_h;
-    tex = p_tex;
 }
 
 float Entity::getX()
@@ -111,38 +84,25 @@ Entity::~Entity()
 
 }
 
-void Button::createBtn(int p_x1, int p_y1, int p_width, int p_height)
-{
-    buttonHitbox.x1 = p_x1;
-    buttonHitbox.y1 = p_y1;
-    buttonHitbox.x2 = p_x1 + p_width;
-    buttonHitbox.y2 = p_y1 + p_height;
-}
-
-hitbox Button::getHitbox()
-{
-    return buttonHitbox;
-}
-
-bool Button::hitboxCheck(int mousePosX, int mousePosY)
-{
-    if (mousePosX > buttonHitbox.x1 && mousePosX < buttonHitbox.x2 && mousePosY > buttonHitbox.y1 && mousePosY < buttonHitbox.y2)
-    {
+bool Button::hitboxCheck(int x, int y) {
+    if (hitbox.x1 <= x <= hitbox.x2 && hitbox.y1 <= y <= hitbox.y2) {
         return true;
+    } else {
+        return false;
     }
-    
-    return false;
 }
 
-void Button::btnDel()
-{
-    buttonHitbox.x1 = -1;
-    buttonHitbox.y1 = -1;
-    buttonHitbox.x2 = -1;
-    buttonHitbox.y2 = -1;
-}
+void Button::renderButton() {
+    SDL_Rect src;
+    src.x = hitbox.x1;
+    src.y = hitbox.y1;
+    src.w = hitbox.x2 - hitbox.x1;
+    src.h = hitbox.y2 - hitbox.y1;
 
-Button::~Button()
-{
-
+    SDL_Rect dst;
+    src.x = hitbox.x1;
+    src.y = hitbox.y1;
+    src.w = hitbox.x2 - hitbox.x1;
+    src.h = hitbox.y2 - hitbox.y1;
+    SDL_RenderCopy(renderer, texture, &src, &dst);
 }
