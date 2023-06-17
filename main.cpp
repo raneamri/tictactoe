@@ -30,9 +30,12 @@ int main(int argc, char **argv)
     SDL_Texture* OTex = window.loadTexture("gfx/O.png");
     SDL_Texture* XTex = window.loadTexture("gfx/X.png");
     SDL_Texture* startButtonTex = window.loadTexture("gfx/start.png");
-    SDL_Texture* lineTex = window.loadTexture("gfx/line.png"); //loading the textures
+    SDL_Texture* lineTex = window.loadTexture("gfx/line.png");
+    SDL_Texture* player1WinTex = window.loadTexture("gfx/player1win.png"); 
+    SDL_Texture* player2WinTex = window.loadTexture("gfx/player2win.png");
+    SDL_Texture* tieTex = window.loadTexture("gfx/tie.png");//loading the textures
 
-    Entity boardEnt, startBtnEnt, lineEnt;
+    Entity boardEnt, startBtnEnt, lineEnt, endScreenEnt;
 
     Entity XOents[GLEN][GWID]; //initalising 2d array of entities which will help with rendering later on
     for (int i = 0; i < 3; i++) 
@@ -44,11 +47,11 @@ int main(int argc, char **argv)
     }
 
     boardEnt.createEnt(512, 512, 0, 0, boardTex);
-    startBtnEnt.createEnt(128, 64, 100 ,256 , startButtonTex); //setting the textures as entities
+    startBtnEnt.createEnt(128, 64, 192 , 128 , startButtonTex); //setting the textures as entities
 
     
     Button startButtonBtn;
-    startButtonBtn.createBtn(100, 256, 128, 64); 
+    startButtonBtn.createBtn(192, 128, 128, 64); 
 
     Button gameBoardBtns[GLEN][GWID];
     // Create and initialize the game board buttons using a loop
@@ -72,7 +75,8 @@ int main(int argc, char **argv)
     SDL_FreeSurface(convertedCursorSurface);
     SDL_FreeSurface(convertedCursorHoverSurface);
 
-    SDL_ShowCursor(SDL_ENABLE);
+    SDL_ShowCursor(SDL_ENABLE); //cursor settings
+
 
     bool gameRunning = true;
     SDL_Event event;
@@ -128,12 +132,13 @@ int main(int argc, char **argv)
                         numOfTurns = 0;
                         turn = 1;
                         playerWon = -1;
+                        endScreenEnt.createEnt(0, 0, 0, 0, nullptr);
 
                         for (int i = 0; i < 3; i++)
                         {
                             for (int j = 0; j < 3; j++) 
                             {
-                                XOents[i][j].createEnt(170, 170, (170 * j), (170 * i), nullptr);//reseting entities
+                                XOents[i][j].createEnt(0, 0, 0, 0, nullptr);//reseting entities
                                 gameBoard[i][j] = -1; // reseting gameboard
                                 int x1 = j * 170;
                                 int y1 = i * 170;
@@ -167,6 +172,7 @@ int main(int argc, char **argv)
                             else if (turn == 2 && gameBoardBtns[i][j].hitboxCheck(window.getMouseX(), window.getMouseY())&& gameBoard[i][j] == -1)// if it's player 2's turn and the mouse is in the hitbox
                             {
                                 XOents[i][j].createEnt(170, 170, (170 * j), (170 * i), OTex);
+                                gameBoardBtns[i][j].btnDel();
                                 gameBoard[i][j] = 1;
                                 numOfTurns++;
                                 turn = 1; // Switch turn to player 1
@@ -219,7 +225,11 @@ int main(int argc, char **argv)
                         dst.y = 170 * (winInfo.second * -1 - 2);
                     }
                     
-                    
+                    if (playerWon == 1)
+                    endScreenEnt.createEnt(512, 512, 0, 0, player1WinTex);
+                    else
+                    endScreenEnt.createEnt(512, 512, 0, 0, player2WinTex);
+
                     lineEnt.createEnt(512, 512, 0, 0, lineTex);
                     window.renderRotate(lineEnt, dst, rotAngle);
                 }
@@ -231,9 +241,13 @@ int main(int argc, char **argv)
                         window.render(XOents[i][j]);
                     }
                 }
+                
+                if(numOfTurns > 8 && playerWon == -1)
+                endScreenEnt.createEnt(512, 512, 0, 0, tieTex);
 
+                window.render(endScreenEnt);
                 window.display();
-                break;
+                break; 
 
             default:
                 state = 0;
