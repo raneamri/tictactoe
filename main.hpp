@@ -1,7 +1,8 @@
+#pragma once
 #include <iostream>
 #include <utility>
 
-#include "Entity.hpp"
+#include "types.hpp"
 #include "defs.hpp"
 
 using namespace std;
@@ -19,7 +20,7 @@ Returns {0, x} if player 1 wins.
 Returns {1, x} if player 2 wins.
 The second index in the pair correlates to a code which helps figure out where the line should be drawn
 */
-pair <int, int> gridChecks(int grid[GLEN][GWID]);
+pair<int, int> gridChecks(int grid[GLEN][GWID]);
 
 /*
 Function to check the validity of an input

@@ -1,15 +1,15 @@
 #pragma once
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
-#include <iostream>
 
-typedef struct hitbox // data type that stores coordinates of hitboxes
-{ 
+#include "interface.hpp"
+
+// data type that stores coordinates of hitboxes
+typedef struct hitbox { 
     int x1, x2, y1, y2;
-}hitbox;
+} hitbox;
 
-class Entity
-{
+class Entity {
 public:
     void createEnt(int size_w, int size_h,float p_x, float p_y, SDL_Texture* p_tex);
     /*
@@ -33,8 +33,27 @@ private:
     SDL_Texture* tex;
 };
 
-class Button
-{
+
+class RenderWindow {
+    public:
+        RenderWindow(const char* p_title, int p_w, int p_h);
+        SDL_Texture* loadTexture(const char* p_filePath);
+        void cleanUp(); 
+        void clear();
+        void render(Entity& p_entity);
+        void renderRotate(Entity p_entity, SDL_Rect &destRect, float rotAngle);
+        void display();
+        void updateMouseCords();
+        int getMouseX();
+        int getMouseY();
+    private:
+        SDL_Window* window;
+        SDL_Renderer* renderer;
+        int mouseX;
+        int mouseY;
+};
+
+class Button {
 public:
     /*
     Initislaises the hitbox of the button
@@ -58,3 +77,4 @@ public:
 private:
     hitbox buttonHitbox;
 };
+
