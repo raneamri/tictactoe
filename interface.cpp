@@ -27,8 +27,7 @@ void Button::renderButton(SDL_Renderer *renderer) {
     dst.h = hitbox.y2 - hitbox.y1;
     int err = SDL_RenderCopy(renderer, texture, &src, &dst);
     if (err < 0) {
-        cout << "render copy error";
-        exit(-1);
+        cout << "render copy error" << endl;
     }
 }
 

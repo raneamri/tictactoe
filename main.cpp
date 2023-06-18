@@ -52,7 +52,7 @@ int main(int argc, char *argv[]) {
             SDL_DestroyWindow(window);
             SDL_Quit();
             IMG_Quit();
-            exit(1);
+            return 0;
     }
     }
 
@@ -60,7 +60,7 @@ int main(int argc, char *argv[]) {
     SDL_Quit();
     IMG_Quit();
 
-    return 0;
+    return -1;
 }
 
 pair <int, int> gridChecks(int8_t grid[GLEN][GWID]) {
@@ -79,16 +79,6 @@ pair <int, int> gridChecks(int8_t grid[GLEN][GWID]) {
     }
 
     return { -1, -1 }; // Return a pair of -1 values if no win condition is met
-}
-
-int checkButtonHover(Button buttons[GLEN][GWID], int cursorX, int cursorY) {
-    for (int i = 0; i < GLEN; i++) {
-        for (int j = 0; j < GWID; j++) {
-            if (buttons[i][j].hitboxCheck(cursorX, cursorY))
-            return 1;
-        }
-    }
-    return 0; // No button is being hovered
 }
 
 
