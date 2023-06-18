@@ -71,12 +71,13 @@ public:
     }
 
     Button(int x1, int y1, int w, int h, char *tpath, SDL_Renderer *renderer) {
-        hitbox.x1 = x1;
-        hitbox.y1 = y1;
-        hitbox.x2 = x1 + w;
-        hitbox.y2 = y1 + h;
-        texture = (tpath != nullptr) ? IMG_LoadTexture(renderer, tpath) : nullptr;
-    }
+    hitbox.x1 = x1;
+    hitbox.y1 = y1;
+    hitbox.x2 = x1 + w;
+    hitbox.y2 = y1 + h;
+    texture = (tpath != nullptr) ? IMG_LoadTexture(renderer, tpath) : nullptr;
+}
+
 
     /*
     Checks if point is in hitbox
@@ -115,8 +116,8 @@ public:
         SDL_FreeSurface(surface);
         SDL_FreeSurface(hoverSurface);
 
-        SDL_Cursor *cursor = SDL_CreateColorCursor(convSurface, 0, 0);
-        SDL_Cursor *cursorHover = SDL_CreateColorCursor(convHoverSurface, 0, 0);
+        cursor = SDL_CreateColorCursor(convSurface, 0, 0);
+        cursorHover = SDL_CreateColorCursor(convHoverSurface, 0, 0);
         SDL_FreeSurface(convSurface);
         SDL_FreeSurface(convHoverSurface);
 

@@ -15,8 +15,8 @@ bool Button::hitboxCheck(int x, int y) {
 
 void Button::renderButton(SDL_Renderer *renderer) {
     SDL_Rect src;
-    src.x = hitbox.x1;
-    src.y = hitbox.y1;
+    src.x = 0;
+    src.y = 0;
     src.w = hitbox.x2 - hitbox.x1;
     src.h = hitbox.y2 - hitbox.y1;
 
@@ -25,6 +25,8 @@ void Button::renderButton(SDL_Renderer *renderer) {
     dst.y = hitbox.y1;
     dst.w = hitbox.x2 - hitbox.x1;
     dst.h = hitbox.y2 - hitbox.y1;
+    
+
     int err = SDL_RenderCopy(renderer, texture, &src, &dst);
     if (err < 0) {
         cout << "render copy error" << endl;
@@ -36,7 +38,7 @@ void Button::hideButton() {
 }
 
 void Button::showButton(char *tpath, SDL_Renderer *renderer) {
-    texture = (texture == NULL) ? IMG_LoadTexture(renderer, tpath) : texture;
+    texture = IMG_LoadTexture(renderer, tpath);
 }
 
 void Entity::renderEntity(SDL_Renderer *renderer) {
