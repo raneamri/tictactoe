@@ -11,3 +11,5 @@
 
 #define WINDOW_WIDTH 512
 #define WINDOW_HEIGHT 512 
+
+#define BOARDBTN_SIZE 170

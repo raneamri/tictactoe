@@ -2,7 +2,6 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 
-#include "globals.hpp"
 #include "interface.hpp"
 
 /*
@@ -34,53 +33,49 @@ public:
     SDL_Texture *texture;
 
     /*
+    Default constructor for matrix of buttons
+    */
+    Entity() {}
+
+    /*
     Constructor function to initialise the currentFrame variable
     size_w is the source width
     size_h is the source height
     p_x and p_y are the x and y coordiantes you want the texture to be diplayed at
     */
-    Entity(int size_w, int size_h, float p_x, float p_y, char *tpath) {
-        x = p_x;
-        y = p_y;
-        currentFrame.x = 0;
-        currentFrame.y = 0;
-        currentFrame.w = size_w;
-        currentFrame.h = size_h;
-        texture = IMG_LoadTexture(renderer, tpath);
-    }
+    Entity(int size_w, int size_h, float p_x, float p_y, char *tpath, SDL_Renderer *renderer);
 
-    ~Entity();
-};
+    void renderEntity(SDL_Renderer *renderer);
 
-
-class RenderWindow {
-    public:
-        RenderWindow(const char* p_title, int p_w, int p_h);
-        SDL_Texture* loadTexture(const char* p_filePath);
-        void cleanUp(); 
-        void clear();
-        void render(Entity& p_entity);
-        void renderRotate(Entity p_entity, SDL_Rect &destRect, float rotAngle);
-        void display();
-        void updateMouseCords();
-        int getMouseX();
-        int getMouseY();
+    ~Entity() {
         
-    private:
-        SDL_Window* window;
-        SDL_Renderer* renderer;
-        int mouseX;
-        int mouseY;
+    };
 };
 
 class Button {
 public:
-    Button(int x1, int y1, int w, int h, char *tpath) {
+    /*
+    Blank constructor
+    */
+    Button() {}
+
+    /*
+    Duplicate constructor
+    */
+    Button(const Button &other) {
+        hitbox.x1 = other.hitbox.x1;
+        hitbox.y1 = other.hitbox.y1;
+        hitbox.x2 = other.hitbox.x2 - other.hitbox.x1;
+        hitbox.y2 = other.hitbox.y2 - other.hitbox.y1;
+        texture = other.texture;
+    }
+
+    Button(int x1, int y1, int w, int h, char *tpath, SDL_Renderer *renderer) {
         hitbox.x1 = x1;
         hitbox.y1 = y1;
         hitbox.x2 = x1 + w;
         hitbox.y2 = y1 + h;
-        texture = IMG_LoadTexture(renderer, tpath);
+        texture = (tpath != nullptr) ? IMG_LoadTexture(renderer, tpath) : nullptr;
     }
 
     /*
@@ -90,7 +85,15 @@ public:
     /*
     Draws the button into the renderer
     */
-    void renderButton();
+    void renderButton(SDL_Renderer *renderer);
+    /*
+    Removes buttons texture
+    */
+    void hideButton();
+    /*
+    Shows buttons texture given tpath (only works if texture is null)
+    */
+    void showButton(char *fpath, SDL_Renderer *renderer);
 
     ~Button() {};
 private:
@@ -118,7 +121,6 @@ public:
         SDL_FreeSurface(convHoverSurface);
 
         SDL_ShowCursor(true);
-
     }
 
     ~Cursor() {
