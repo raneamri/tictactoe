@@ -41,22 +41,16 @@ void Button::showButton(char *tpath, SDL_Renderer *renderer) {
     texture = IMG_LoadTexture(renderer, tpath);
 }
 
-void Entity::renderEntity(SDL_Renderer *renderer) {
-    SDL_Rect src;
-    src.x = currentFrame.x;
-    src.x = currentFrame.y;
-    src.w = currentFrame.w;
-    src.h = currentFrame.h;
-
+void Entity::renderEnt(SDL_Renderer *renderer) {
     SDL_Rect dst;
-    dst.x = currentFrame.x;
-    dst.x = currentFrame.y;
+    dst.x = x;
+    dst.y = y;
     dst.w = currentFrame.w;
     dst.h = currentFrame.h;
-    SDL_RenderCopy(renderer, texture, &src, &dst);
+    SDL_RenderCopy(renderer, texture, &currentFrame, &dst);
 }
 
-Entity::Entity(int size_w, int size_h, float p_x, float p_y, char *tpath, SDL_Renderer *renderer) {
+void Entity::loadEnt(int size_w, int size_h, float p_x, float p_y, char *tpath, SDL_Renderer *renderer) {
     x = p_x;
     y = p_y;
     currentFrame.x = 0;
@@ -64,4 +58,9 @@ Entity::Entity(int size_w, int size_h, float p_x, float p_y, char *tpath, SDL_Re
     currentFrame.w = size_w;
     currentFrame.h = size_h;
     texture = IMG_LoadTexture(renderer, tpath);
+}
+
+void Entity::renderRotEnt(SDL_Renderer *renderer, SDL_Rect dst, double rotAngle) {
+    
+    SDL_RenderCopyEx(renderer, texture, nullptr, &dst, rotAngle, nullptr, SDL_FLIP_NONE);
 }

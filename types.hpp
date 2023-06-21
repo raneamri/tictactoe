@@ -43,13 +43,16 @@ public:
     size_h is the source height
     p_x and p_y are the x and y coordiantes you want the texture to be diplayed at
     */
-    Entity(int size_w, int size_h, float p_x, float p_y, char *tpath, SDL_Renderer *renderer);
+    void loadEnt(int size_w, int size_h, float p_x, float p_y, char *tpath, SDL_Renderer *renderer);
 
-    void renderEntity(SDL_Renderer *renderer);
+    void renderEnt(SDL_Renderer *renderer);
+
+    void renderRotEnt(SDL_Renderer *renderer, SDL_Rect dst, double rotAngle);
 
     ~Entity() {
         
     };
+
 };
 
 class Button {

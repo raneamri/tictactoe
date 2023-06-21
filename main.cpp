@@ -130,8 +130,10 @@ state_t MenuState() {
 
 state_t OfflineState() {
     SDL_Event event;
-    Entity board(512, 512, 0, 0, (char *)"gfx/board.png", renderer);
-    Entity endScreen;
+    Entity endScreen, board, line;
+    board.loadEnt(512, 512, 0, 0, (char *)"gfx/board.png", renderer);
+    SDL_Rect dst = {0, 0, 512, 512};
+    double rot = 0;
     Button boardBtns[GLEN][GWID];
     for (int i = 0; i < GLEN; i++) 
     {
@@ -164,8 +166,10 @@ state_t OfflineState() {
     {
         if (SDL_PollEvent(&event)) 
         {
-            //if (lastWin != -1 || turnNum >= 9)
-            //return MENU;
+
+            if(event.type == SDL_QUIT)
+            return MENU;
+            
             
             SDL_GetMouseState(&mouseX, &mouseY);
 
@@ -192,43 +196,36 @@ state_t OfflineState() {
 
                             winInfo = gridChecks(int8board);
                             if(winInfo.first != -1)
+                            lastWin = (winInfo.first == 0) ? 1 : 2;
+                            
+
+                            if (lastWin > -1 || turnNum >= 9) 
                             {
-                                lastWin = (winInfo.first == 0) ? 1 : 2;
+                                /*
+                                Draw line using rotation
+                                */
+                                if (lastWin > -1) 
+                                    {
+                                        line.loadEnt(512, 512, 0, 0, (char *)"gfx/line.png", renderer);
+
+                                        if(winInfo.second == 5) {
+                                            rot = 45;
+                                        } else if(winInfo.second == 4) {
+                                            rot = 315;
+                                        } else if(winInfo.second > 0) {
+                                            dst.x = 170 * (winInfo.second - 2);
+                                        } else {
+                                            rot = 90;
+                                            dst.y = 170 * (winInfo.second * -1 - 2);
+                                        }
+                                    }
+                                endScreen.loadEnt(512, 512, 0, 0, (lastWin == -1) ? efpaths[2] : (lastWin == 1) ? efpaths[0] : efpaths[1], renderer);
+                                cout << "Wargs" << endl;
+                                
                             }
                         }
                     }   
                 }
-            }
-
-            if (lastWin > -1 || turnNum >= 9) 
-            {
-                /*
-                Draw line using rotation
-                */
-                if (lastWin > -1) 
-                    {
-                        Entity line(512, 512, 0, 0, (char *)"gfx/line.png", renderer);
-
-                        SDL_Rect dst = {0, 0, 512, 512};
-                        int rot = 0;
-
-                        if(winInfo.second == 5) {
-                            rot = 45;
-                        } else if(winInfo.second == 4) {
-                            rot = 315;
-                        } else if(winInfo.second > 0) {
-                            dst.x = 170 * (winInfo.second - 2);
-                        } else {
-                            rot = 90;
-                            dst.y = 170 * (winInfo.second * -1 - 2);
-                        }
-
-                        SDL_RenderCopyEx(renderer, line.texture, nullptr, &dst, rot, nullptr, SDL_FLIP_NONE);
-                    }
-
-                Entity endScreen(512, 512, 0, 0, (lastWin == -1) ? efpaths[2] : (lastWin == 1) ? efpaths[0] : efpaths[1], renderer);
-                cout << "Wargs" << endl;
-                
             }
         }
 
@@ -246,10 +243,15 @@ state_t OfflineState() {
                     boardBtns[i][j].renderButton(renderer);
             }
         }
-        if(lastWin > -1 || turnNum >= 9)
-        endScreen.renderEntity(renderer);
 
-        board.renderEntity(renderer);
+        board.renderEnt(renderer);
+
+        if(lastWin > -1)
+        line.renderRotEnt(renderer, dst, rot);
+
+        if(lastWin > -1 || turnNum >= 9)
+        endScreen.renderEnt(renderer);
+
 
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0);
         SDL_RenderPresent(renderer);
